@@ -72,3 +72,28 @@ def estimate_max_length(model, data):
     std = np.std(lengths)  
     estimate = round(mean + 3 * std)
     return estimate
+
+
+def truncate_prompt(prompts, model_name, max_tokens=4000):
+    """
+    Truncates the list of prompts so that each does not exceed a specified maximum number of tokens for a given model.
+    Args:
+        prompts (List[str]): A list of input prompt strings.
+        model_name (str): HuggingFace model name.
+        max_tokens (int, optional): The maximum number of tokens allowed per prompt. Defaults to 4000.
+    Returns:
+        List[str]: A list of prompts with a maximum token length. 
+    """
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    
+    truncated_prompts = []
+    for prompt in prompts:
+        tokens = tokenizer.encode(prompt)
+        
+        if len(tokens) <= max_tokens:
+            truncated_prompts.append(prompt)
+        else:
+            truncated_tokens = tokens[:max_tokens]
+            truncated_prompts.append(tokenizer.decode(truncated_tokens, skip_special_tokens=True))
+    
+    return truncated_prompts

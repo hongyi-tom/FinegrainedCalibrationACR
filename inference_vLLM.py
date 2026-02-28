@@ -5,7 +5,6 @@ import torch
 import pandas as pd
 import data_processor
 from vllm import LLM, SamplingParams
-from transformers import AutoTokenizer
 
 def get_tensor_parallel_size():
     """
@@ -16,31 +15,8 @@ def get_tensor_parallel_size():
     if torch.cuda.is_available():
         return torch.cuda.device_count()
     return 1
-
-def truncate_prompt(prompts, model_name, max_tokens=4000):
-    """
-    Truncates the list of prompts so that each does not exceed a specified maximum number of tokens for a given model.
-    Args:
-        prompts (List[str]): A list of input prompt strings.
-        model_name (str): HuggingFace model name.
-        max_tokens (int, optional): The maximum number of tokens allowed per prompt. Defaults to 4000.
-    Returns:
-        List[str]: A list of prompts with a maximum token length. 
-    """
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    
-    truncated_prompts = []
-    for prompt in prompts:
-        tokens = tokenizer.encode(prompt)
-        
-        if len(tokens) <= max_tokens:
-            truncated_prompts.append(prompt)
-        else:
-            truncated_tokens = tokens[:max_tokens]
-            truncated_prompts.append(tokenizer.decode(truncated_tokens, skip_special_tokens=True))
-    
-    return truncated_prompts
  
+
 def main():
     # Read model name from command-line arguments
     model_name = sys.argv[1]
@@ -88,7 +64,7 @@ def main():
     
     # Run Inference
     results = []
-    for example in model.generate(truncate_prompt(prompt_set, model_name), sampling_params=sampling_params):
+    for example in model.generate(data_processor.truncate_prompt(prompt_set, model_name), sampling_params=sampling_params):
         output = example.outputs[0]
 
         # vLLM gives access to the token-level info in `output.sequences`
