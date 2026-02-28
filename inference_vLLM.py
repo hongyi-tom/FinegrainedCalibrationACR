@@ -10,7 +10,7 @@ def get_tensor_parallel_size():
     """
     Determines the tensor parallel size based on available CUDA devices.
     Returns:
-        int: The number of available CUDA GPUs if CUDA is enabled, otherwise 1 (defaulting to single-device execution).
+        int: The number of available CUDA GPUs if CUDA is enabled, otherwise defaulting to a single-device.
     """
     if torch.cuda.is_available():
         return torch.cuda.device_count()
