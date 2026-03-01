@@ -48,7 +48,7 @@ def main():
     # Evaluate correctness based on the relevant metrics
     if benchmark == "deepcode_train":
         print("BUG")
-        bug_generated['PLAUSIBLE'] = False
+        bug_generated['CP'] = False
         bug_generated['EM'] = u.record_exact_match(bug_generated['gt'], bug_generated)
         bug_generated['EP'] = u.edit_progress(bug_generated['input_code'], bug_generated['gt'], bug_generated['generated_sequence'])
         bug_generated['Type'] = 'bug'
@@ -57,7 +57,7 @@ def main():
         print("VULNERABILITY")
         u.create_files(vul_generated)
         u.run_static_check(snyk_org_id, "./static_check/")
-        vul_generated['PLAUSIBLE'] = u.collect_static_results('static_check/report.json', vul_generated)
+        vul_generated['CP'] = u.collect_static_results('static_check/report.json', vul_generated)
         vul_generated['EM'] = u.record_exact_match(vul_generated['gt'], vul_generated)
         vul_generated['EP'] = u.edit_progress(vul_generated['input_code'], vul_generated['gt'], vul_generated['generated_sequence'])
         vul_generated['Type'] = 'vul'
@@ -67,7 +67,7 @@ def main():
         if result.split("_")[-1] == "vul":
             u.create_files(generated)
             u.run_static_check(snyk_org_id, "./static_check/")
-            generated['PLAUSIBLE'] = u.collect_static_results('static_check/report.json', generated)
+            generated['CP'] = u.collect_static_results('static_check/report.json', generated)
         
         generated['EM'] = u.record_exact_match(generated['gt'], generated)
         generated['EP'] = u.edit_progress(generated['input_code'], generated['gt'], generated['generated_sequence'])

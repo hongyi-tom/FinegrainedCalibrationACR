@@ -22,7 +22,7 @@ def process_deepcode(benchmark):
     """
     Applies inference prompt across all samples for any DeepCode AI Fix dataset.
     Parameters:
-        benchmark (pandas.DataFrame): Dataset from DeepCode AI Fix i.e., DCF-Bug, DCF-Vul, DCF-Train.
+        benchmark (pd.Dataframe): Dataset from DeepCode AI Fix i.e., DCF-Bug, DCF-Vul, DCF-Train.
     Returns:
         list[str]: A list of formatted prompt strings for LLM-based automated program/vulnerability repair.
     """
@@ -47,7 +47,7 @@ def process_codereviewqa(benchmark):
     """
     Applies inference prompt across all samples for either the training or test set of CR-Trans.
     Parameters:
-        benchmark (pandas.DataFrame): Dataset from CR-Trans i.e., training, test.
+        benchmark (pd.Dataframe): Dataset from CR-Trans i.e., training, test.
     Returns:
         list[str]: A list of formatted prompt strings for LLM-based automated code refinement.
     """
