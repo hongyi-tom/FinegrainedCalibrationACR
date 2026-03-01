@@ -54,3 +54,6 @@ def main():
         u.platt_scale(task_training_generated, test_generated, correctness, confidence)
     else:
         u.grid_search(task_training_generated, test_generated, correctness, confidence)
+
+if __name__ == "__main__":
+    main()
