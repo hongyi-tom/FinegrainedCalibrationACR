@@ -509,7 +509,7 @@ def apply_local_platt_scale(train_generated, test_generated, correctness, confid
     return ece_, brier_, bc_
 
 
-def grid_search_local_platt_scale(train_generated, test_generated, confidence, correctness):
+def grid_search_local_platt_scale(train_generated, test_generated, correctness, confidence):
     """
     Performs a grid search over Local Platt-scaling hyperparameters for the best calibration results.
     Args:
