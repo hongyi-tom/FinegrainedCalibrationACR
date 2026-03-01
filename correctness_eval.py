@@ -2,7 +2,7 @@ import os
 import sys
 import warnings
 import pandas as pd
-import eval_utils as u
+import utils.eval_utils as u
 
 # Suppress Warnings
 sys.stderr = open(os.devnull, 'w')
@@ -15,7 +15,7 @@ def main():
     benchmark = result.split("_")[-2] + "_" + result.split("_")[-1]
     generated = pd.read_json(benchmark + "/" + result + ".jsonl", lines=True)
 
-    # Read Snyk organisation ID
+    # Read Snyk organisation ID from command-line arguments
     snyk_org_id = sys.argv[2]
 
     # Read and load relevant benchmark

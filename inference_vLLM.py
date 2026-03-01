@@ -3,7 +3,7 @@ import ast
 import math
 import torch
 import pandas as pd
-import data_processor
+import utils.data_processor as data_processor
 from vllm import LLM, SamplingParams
 
 def get_tensor_parallel_size():
