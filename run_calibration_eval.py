@@ -51,9 +51,9 @@ def main():
 
     # Run selected calibration method
     if local_or_global == "global":
-        u.platt_scale(task_training_generated, test_generated, correctness, confidence)
+        u.global_platt_scale(task_training_generated, test_generated, correctness, confidence)
     else:
-        u.grid_search(task_training_generated, test_generated, correctness, confidence)
+        u.grid_search_local_platt_scale(task_training_generated, test_generated, correctness, confidence)
 
 if __name__ == "__main__":
     main()
