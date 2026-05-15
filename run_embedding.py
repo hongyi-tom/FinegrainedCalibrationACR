@@ -1,6 +1,7 @@
 import sys
 import pandas as pd
 from tqdm import tqdm
+import utils.data_processor as u
 from sentence_transformers import SentenceTransformer
 
 def main():
@@ -14,6 +15,11 @@ def main():
         dataset = pd.read_parquet(benchmark + "/" + benchmark + ".parquet").reset_index()
     else:
         dataset = pd.read_parquet(benchmark + "/" + benchmark + "_test" + ".parquet").reset_index()
+    
+    if result.split("_")[-2] == 'deepcode':
+        dataset['prompts'] = u.process_deepcode(dataset)
+    else:
+        dataset['prompts'] = u.process_codereviewqa(dataset)
 
     # Load embedding model
     model = SentenceTransformer("Qwen/Qwen3-Embedding-8B")

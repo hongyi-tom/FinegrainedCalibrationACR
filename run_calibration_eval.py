@@ -3,7 +3,7 @@ import re
 import sys
 import warnings
 import pandas as pd
-import calibrate_utils as u
+import utils.calibrate_utils as u
 from transformers import AutoTokenizer
 
 # Suppress Warnings
@@ -26,18 +26,13 @@ def main():
     elif re.search("DeepSeek", result):
         dir = "deepseek-ai/"
 
-    model = dir + result.split("_")[0]
-    tokenizer = AutoTokenizer.from_pretrained(model)
-
     benchmark = result.split("_")[-2] + "_" + result.split("_")[-1]
     test_generated = pd.read_json(benchmark + "/" + result + ".jsonl", lines=True)
-    test_generated = u.filter_sequence(test_generated, tokenizer)
-    test_generated = u.calculate_confidence(result, benchmark, test_generated, tokenizer)
+    test_generated = u.calculate_confidence(result, benchmark, test_generated)
 
     if benchmark == "deepcode_bug" or benchmark == "deepcode_vul":
         train_generated = pd.read_json('deepcode_train/' + result.split('_')[0] + '_deepcode_train.jsonl', lines=True)
-        train_generated = u.filter_sequence(train_generated, tokenizer)
-        train_generated = u.calculate_confidence(result.split('_')[0] + '_deepcode_train', 'deepcode_train', train_generated, tokenizer)
+        train_generated = u.calculate_confidence(result.split('_')[0] + '_deepcode_train', 'deepcode_train', train_generated)
 
         if benchmark == "deepcode_bug":
             task_training_generated = train_generated.loc[train_generated.Type=='bug']
@@ -46,8 +41,7 @@ def main():
 
     if benchmark == "codereviewqa_trans":
         task_training_generated = pd.read_json('codereviewqa_train/' + result.split('_')[0] + '_codereviewqa_train.jsonl', lines=True)
-        task_training_generated = u.filter_sequence(task_training_generated, tokenizer)
-        task_training_generated = u.calculate_confidence(result.split('_')[0] + '_codereviewqa_train', 'codereviewqa_train', task_training_generated, tokenizer)
+        task_training_generated = u.calculate_confidence(result.split('_')[0] + '_codereviewqa_train', 'codereviewqa_train', task_training_generated)
 
     # Run selected calibration method
     if local_or_global == "global":

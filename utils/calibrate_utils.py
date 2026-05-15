@@ -229,7 +229,7 @@ def attention_weighted_uncertainty(softmax_probabilities, attention):
     return np.mean(sorted_w_uncertainty[:knee_index])
 
 
-def ece(confidence, accuracy, bins, print=True):
+def ece(confidence, accuracy, bins):
     """
     Computes Expected Calibration Error (ECE) for binary predictions.
     Args:
@@ -242,12 +242,12 @@ def ece(confidence, accuracy, bins, print=True):
     """
     metric = BinaryCalibrationError(n_bins=bins, norm='l1')
     ece = round(metric(torch.tensor(confidence, dtype=torch.float32), torch.tensor(accuracy, dtype=torch.float32)).item(), 2)
-    if print == True:
-        print("ECE:", ece)
+    
+    print("ECE:", ece)
     return ece
 
 
-def brier(confidence, accuracy, print=True):
+def brier(confidence, accuracy):
     """
     Computes the Brier score for binary predictions.
     Args:
@@ -258,12 +258,12 @@ def brier(confidence, accuracy, print=True):
         float: Brier score rounded to two decimals.
     """
     brier = round(brier_score_loss(accuracy, confidence), 2)
-    if print == True:
-        print("Brier:", brier)
+
+    print("Brier:", brier)
     return brier
 
 
-def bin_coverage(confidences, n_bins=10, eps=1e-12, print=True):
+def bin_coverage(confidences, n_bins=10, eps=1e-12):
     """
     Counts how many confidence bins contain at least 30 samples.
     Args:
@@ -280,8 +280,7 @@ def bin_coverage(confidences, n_bins=10, eps=1e-12, print=True):
     probs = np.clip(probs, eps, 1.0)
     covered_bin_count = np.sum(counts >= 30) 
 
-    if print == True:
-        print("Bins covered:", covered_bin_count)
+    print("Bins covered:", covered_bin_count)
     return covered_bin_count
 
 
@@ -398,7 +397,7 @@ class LocalPlattScaler:
         
         # Scale confidence scores to match UMAP variance
         scores_z = self.score_scaler.fit_transform(self.scores_train)
-        self.scores_for_clustering = scores_z * self.umap_avg_std * self.score_weight
+        self.scores_for_clustering = scores_z * self.umap_avg_std 
         
         # Append selected confidence scores to UMAP dimensions
         self.train_features = np.hstack([self.embedding_reduced, self.scores_for_clustering])
@@ -472,7 +471,7 @@ class LocalPlattScaler:
                     prob = original_score
 
             calibrated_preds.append(np.clip(prob, 0, 1))
-            
+        
         return np.array(calibrated_preds)
 
 
@@ -502,9 +501,9 @@ def apply_local_platt_scale(train_generated, test_generated, correctness, confid
     x_test = x_test.reshape(-1, 1)
     calibrated_probs = clf.predict(x_test_embed, x_test)
 
-    ece_ = ece(calibrated_probs, test_generated[correctness], 10, print=False)
-    brier_ = brier(calibrated_probs, test_generated[correctness], print=False)
-    bc_ = bin_coverage(calibrated_probs, n_bins=10, eps=1e-12, print=False)
+    ece_ = ece(calibrated_probs, test_generated[correctness], 10)
+    brier_ = brier(calibrated_probs, test_generated[correctness])
+    bc_ = bin_coverage(calibrated_probs, n_bins=10, eps=1e-12)
 
     return ece_, brier_, bc_
 
@@ -528,7 +527,7 @@ def grid_search_local_platt_scale(train_generated, test_generated, correctness, 
             for bo in backoff:
                 if ms > mcs:
                     continue
-
+                
                 ece, brier, bc = apply_local_platt_scale(train_generated, test_generated, correctness, confidence, mcs, ms, bo)
                 if (ece < best_stats["ece"]) or ((ece == best_stats["ece"]) & (brier < best_stats["brier"])) or ((ece == best_stats["ece"]) & (brier == best_stats["brier"]) & (bc > best_stats["bc"])):
                     if (bc > 1):

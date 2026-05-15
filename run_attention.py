@@ -5,6 +5,8 @@ import torch
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+import utils.data_processor as u
+import utils.calibrate_utils as c
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 
@@ -72,6 +74,11 @@ def main():
         dataset = pd.read_parquet(benchmark + "/" + benchmark + ".parquet").reset_index()
     else:
         dataset = pd.read_parquet(benchmark + "/" + benchmark + "_test" + ".parquet").reset_index()
+    
+    if result.split("_")[-2] == 'deepcode':
+        dataset['prompts'] = u.process_deepcode(dataset)
+    else:
+        dataset['prompts'] = u.process_codereviewqa(dataset)
 
     # Load relevant model
     if re.search("Qwen", result):
@@ -95,6 +102,7 @@ def main():
     m.config.use_cache = False
 
     # Construct full sequences
+    generated = c.filter_sequence(generated, t)
     full_sequences = dataset.prompts + generated.generated_sequence_f
     full_sequences = full_sequences.to_list()
 
